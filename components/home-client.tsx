@@ -14,7 +14,7 @@ export default function HomeClient() {
     setOpening(true);
     setTimeout(() => {
       router.push("/login");
-    }, 700);
+    }, 650);
   };
 
   return (
