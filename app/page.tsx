@@ -11,8 +11,8 @@ export const metadata: Metadata = {
       "Open the wedding Album for Anandi and Vineet and continue to the private dashboard login.",
     images: [
       {
-        url: "/WelcomeImage.png",
-        alt: "Welcome image for Anandi and Vineet wedding invitation",
+        url: "/meta-wedding.png",
+        alt: "Wedding image for Anandi and Vineet",
       },
     ],
   },
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     title: "Wedding Album | Anandi and Vineet Wedding",
     description:
       "Open the wedding Album for Anandi and Vineet and continue to the private dashboard login.",
-    images: ["/WelcomeImage.png"],
+    images: ["/meta-wedding.png"],
   },
 };
 

@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -13,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://wedding-album.local"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Anandi and Vineet Wedding",
     template: "%s | Anandi and Vineet Wedding",
@@ -33,6 +41,20 @@ export const metadata: Metadata = {
     description:
       "Private wedding invitation, dashboard, albums, and videos for Anandi and Vineet.",
     type: "website",
+    siteName: "Anandi and Vineet Wedding",
+    images: [
+      {
+        url: "/meta-wedding.png",
+        alt: "Anandi and Vineet wedding preview image",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Anandi and Vineet Wedding",
+    description:
+      "Private wedding invitation, dashboard, albums, and videos for Anandi and Vineet.",
+    images: ["/meta-wedding.png"],
   },
   robots: {
     index: false,

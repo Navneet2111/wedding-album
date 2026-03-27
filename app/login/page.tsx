@@ -13,8 +13,8 @@ export const metadata: Metadata = {
       "Secure login for the private Anandi and Vineet wedding dashboard, albums, and video gallery.",
     images: [
       {
-        url: "/ganeshBhgwan.png",
-        alt: "Ganesh Bhagwan artwork for the Anandi and Vineet wedding login page",
+        url: "/meta-wedding.png",
+        alt: "Wedding  image for Anandi and Vineet login page",
       },
     ],
   },
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     title: "Login | Anandi and Vineet Wedding",
     description:
       "Secure login for the private Anandi and Vineet wedding dashboard, albums, and video gallery.",
-    images: ["/ganeshBhgwan.png"],
+    images: ["/wedding.JPG"],
   },
 };
 
