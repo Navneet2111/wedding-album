@@ -12,22 +12,22 @@ const albumItems = [
   {
     title: "Engagement Stories",
     note: "Warm colors, laughter, and playful rituals.",
-    image: "/engagement.jpg",
+    image: "/engagement.JPG",
   },
   {
     title: "Haldi Moments",
     note: "Hand art, music, and close family moments.",
-    image: "/haldi.jpg",
+    image: "/haldi.JPG",
   },
   {
     title: "Tilak Ceremony",
     note: "Sacred rituals, vows, and timeless portraits.",
-    image: "/tilak.jpg",
+    image: "/tilak.JPG",
   },
   {
     title: "Wedding Ceremony",
     note: "Stage highlights and celebration with guests.",
-    image: "/wedding.jpg",
+    image: "/wedding.JPG",
   },
 ];
 
