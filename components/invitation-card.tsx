@@ -11,7 +11,7 @@ type InvitationCardProps = {
 export default function InvitationCard({
   children,
   className = "",
-  title = "Anandi weds Vineet",
+  title = "Anandi & Vineet",
   description = "A celebration of love, rituals, and family. Click the envelope card to continue to login.",
 }: InvitationCardProps) {
   return (
