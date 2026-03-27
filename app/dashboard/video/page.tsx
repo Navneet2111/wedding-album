@@ -25,20 +25,9 @@ const videoItems = [
 export default function VideoPage() {
   return (
     <section className="space-y-6">
-      {/* <div className="rounded-[28px] bg-white/75 p-6 shadow-[0_12px_28px_rgba(102,35,49,0.1)]">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-rose-800/80">
-          Video
-        </p>
-        <h2 className="mt-3 font-serif text-4xl font-bold text-rose-950">
-          Wedding Video Library
-        </h2>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-rose-900/80">
-          This page is ready for your wedding videos. Replace the placeholders
-          with embedded players or streamed video links.
-        </p>
-      </div> */}
 
-      <div className="grid md:grid-cols-2 gap-4">
+
+      <div className="grid lg:grid-cols-2 gap-4">
         {videoItems.map((item) => (
           <article
             key={item.title}
@@ -64,12 +53,7 @@ export default function VideoPage() {
         ))}
       </div>
 
-      <Link
-        href="/dashboard"
-        className="inline-block rounded-full bg-rose-800 px-5 py-3 text-sm font-bold text-rose-50 transition hover:bg-rose-900"
-      >
-        Back to dashboard
-      </Link>
+
     </section>
   );
 }

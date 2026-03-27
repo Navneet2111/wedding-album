@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function DashboardPage() {
   return (
-    <section className="grid gap-6 md:grid-cols-[1.15fr_0.85fr]">
+    <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
       <div className="space-y-5 rounded-[28px] bg-white/70 p-6 shadow-[0_12px_28px_rgba(102,35,49,0.1)]">
         <h2 className="font-serif text-4xl font-bold text-rose-950 md:text-5xl">
           Welcome to our private wedding space

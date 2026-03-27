@@ -14,12 +14,12 @@ const navItems = [
   {
     href: "/dashboard/album",
     label: "Album",
-    heading: "Wedding Photo Collections",
+    heading: "Wedding Photo",
   },
   {
     href: "/dashboard/video",
     label: "Video",
-    heading: "Wedding Video Library",
+    heading: "Wedding Videos",
   },
 ];
 
