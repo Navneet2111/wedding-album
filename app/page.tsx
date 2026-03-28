@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import HomeClient from "@/components/home-client";
 
 const metaPreviewImage =
-  // "https://i.pinimg.com/736x/d9/64/35/d96435c0442c2de1d33129993556331f.jpg";
-  "https://drive.google.com/file/d/1AU6UuvrumDfFaRTMdGCmWcCxL5h9ivU_/view?usp=sharing";
+  "https://i.pinimg.com/736x/d9/64/35/d96435c0442c2de1d33129993556331f.jpg";
 
 export const metadata: Metadata = {
   title: "Wedding Album",
