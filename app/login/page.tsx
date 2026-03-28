@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import LoginForm from "@/components/login-form";
-import { getSession } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -27,12 +25,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function LoginPage() {
-  const session = await getSession();
-
-  if (session) {
-    redirect("/dashboard");
-  }
-
+export default function LoginPage() {
   return <LoginForm />;
 }

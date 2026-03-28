@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { ReactNode } from "react";
-import { logoutAction } from "@/app/login/actions";
+import AuthGuard from "@/components/auth-guard";
 import DashboardHeader from "@/components/dashboard-header";
 import InvitationFrame from "@/components/invitation-frame";
-import { requireSession } from "@/lib/auth";
+import LogoutButton from "@/components/logout-button";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -15,13 +15,11 @@ type DashboardLayoutProps = {
   children: ReactNode;
 };
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
-  await requireSession();
-
   return (
-    <>
+    <AuthGuard>
       {/* ✅ Tablet & Desktop (with InvitationFrame) */}
       <div className="hidden md:block">
         <InvitationFrame>
@@ -32,14 +30,7 @@ export default async function DashboardLayout({
               <div className="mb-6 flex flex-col gap-4 border-b border-rose-900/10 pb-5 md:flex-row md:items-center md:justify-between">
                 <DashboardHeader />
                 <div className="flex flex-wrap gap-3 md:justify-end">
-                  <form action={logoutAction}>
-                    <button
-                      type="submit"
-                      className="rounded-full bg-rose-800 px-4 py-2 text-sm font-semibold text-rose-50 transition hover:bg-rose-900"
-                    >
-                      Logout
-                    </button>
-                  </form>
+                  <LogoutButton className="rounded-full bg-rose-800 px-4 py-2 text-sm font-semibold text-rose-50 transition hover:bg-rose-900 disabled:cursor-not-allowed disabled:opacity-70" />
                 </div>
               </div>
 
@@ -58,14 +49,7 @@ export default async function DashboardLayout({
             <div className="flex items-start justify-between gap-3">
               <DashboardHeader mobile showNav={false} />
               <div className="shrink-0">
-                <form action={logoutAction}>
-                  <button
-                    type="submit"
-                    className="rounded-full bg-rose-800 px-3 py-1.5 text-sm font-semibold text-white"
-                  >
-                    Logout
-                  </button>
-                </form>
+                <LogoutButton className="rounded-full bg-rose-800 px-3 py-1.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70" />
               </div>
             </div>
             <DashboardHeader mobile showHeading={false} />
@@ -74,6 +58,6 @@ export default async function DashboardLayout({
           {children}
         </div>
       </div>
-    </>
+    </AuthGuard>
   );
 }
