@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   description:
     "Open the wedding Album for Anandi and Vineet and continue to the private dashboard login.",
   openGraph: {
-    title: "Vineet and Anandi ❤️| Wedding Album",
+    title: "Vineet & Anandi | Wedding Album",
     description:
-      "Open the wedding Album for Anandi and Vineet and continue to the private dashboard login.",
+      "Open the wedding Album of  Vineet & Anandi and continue to the private dashboard login.",
     images: [
       {
         url: metaPreviewImage,
