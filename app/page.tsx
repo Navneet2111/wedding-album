@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import HomeClient from "@/components/home-client";
 
+const metaPreviewImage =
+  "https://i.pinimg.com/736x/d9/64/35/d96435c0442c2de1d33129993556331f.jpg";
+
 export const metadata: Metadata = {
   title: "Wedding Album",
   description:
@@ -11,7 +14,7 @@ export const metadata: Metadata = {
       "Open the wedding Album for Anandi and Vineet and continue to the private dashboard login.",
     images: [
       {
-        url: "/meta-wedding.png",
+        url: metaPreviewImage,
         alt: "Wedding image for Anandi and Vineet",
       },
     ],
@@ -21,7 +24,7 @@ export const metadata: Metadata = {
     title: "Wedding Album | Anandi and Vineet Wedding",
     description:
       "Open the wedding Album for Anandi and Vineet and continue to the private dashboard login.",
-    images: ["/meta-wedding.png"],
+    images: [metaPreviewImage],
   },
 };
 

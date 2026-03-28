@@ -10,6 +10,9 @@ const siteUrl =
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
 
+const metaPreviewImage =
+  "https://i.pinimg.com/736x/d9/64/35/d96435c0442c2de1d33129993556331f.jpg";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -44,7 +47,7 @@ export const metadata: Metadata = {
     siteName: "Anandi and Vineet Wedding",
     images: [
       {
-        url: "/meta-wedding.png",
+        url: metaPreviewImage,
         alt: "Anandi and Vineet wedding preview image",
       },
     ],
@@ -54,7 +57,7 @@ export const metadata: Metadata = {
     title: "Anandi and Vineet Wedding",
     description:
       "Private wedding invitation, dashboard, albums, and videos for Anandi and Vineet.",
-    images: ["/meta-wedding.png"],
+    images: [metaPreviewImage],
   },
   robots: {
     index: false,

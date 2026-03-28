@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import LoginForm from "@/components/login-form";
 
+const metaPreviewImage =
+  "https://i.pinimg.com/736x/d9/64/35/d96435c0442c2de1d33129993556331f.jpg";
+
 export const metadata: Metadata = {
   title: "Login",
   description:
@@ -11,7 +14,7 @@ export const metadata: Metadata = {
       "Secure login for the private Anandi and Vineet wedding dashboard, albums, and video gallery.",
     images: [
       {
-        url: "/meta-wedding.png",
+        url: metaPreviewImage,
         alt: "Wedding  image for Anandi and Vineet login page",
       },
     ],
@@ -21,7 +24,7 @@ export const metadata: Metadata = {
     title: "Login | Anandi and Vineet Wedding",
     description:
       "Secure login for the private Anandi and Vineet wedding dashboard, albums, and video gallery.",
-    images: ["/wedding.JPG"],
+    images: [metaPreviewImage],
   },
 };
 

@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import AuthLoader from "@/components/auth-loader";
 import InvitationFrame from "@/components/invitation-frame";
 import { getFirebaseAuth } from "@/lib/firebase-client";
@@ -12,7 +9,7 @@ import { getFirebaseAuth } from "@/lib/firebase-client";
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
     if (error.message.includes("auth/invalid-credential")) {
-      return "Incorrect email or password.";
+      return "Invalid email or password.";
     }
 
     if (error.message.includes("auth/user-not-found")) {
@@ -20,7 +17,7 @@ function getErrorMessage(error: unknown) {
     }
 
     if (error.message.includes("auth/wrong-password")) {
-      return "Incorrect email or password.";
+      return "Invalid email or password.";
     }
 
     if (error.message.includes("auth/invalid-email")) {
@@ -126,7 +123,10 @@ export default function LoginForm() {
             }}
             className="grid gap-3"
           >
-            <label htmlFor="email" className="text-sm font-semibold text-rose-950">
+            <label
+              htmlFor="email"
+              className="text-sm font-semibold text-rose-950"
+            >
               Email
             </label>
             <input
@@ -139,7 +139,10 @@ export default function LoginForm() {
               required
             />
 
-            <label htmlFor="password" className="text-sm font-semibold text-rose-950">
+            <label
+              htmlFor="password"
+              className="text-sm font-semibold text-rose-950"
+            >
               Password
             </label>
             <input
@@ -155,17 +158,12 @@ export default function LoginForm() {
             <button
               type="submit"
               disabled={pending}
-              className="mt-3 rounded-xl bg-rose-800 px-4 py-3 text-sm font-bold text-rose-50 shadow-[0_10px_18px_rgba(90,20,33,0.32)] transition hover:bg-rose-900 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-3 rounded-xl bg-rose-800 px-4 py-3 text-sm font-bold text-rose-50 hadow-[0_10px_18px_rgba(90,20,33,0.32)] transition hover:bg-rose-900 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {pending ? "Signing in..." : "Login"}
             </button>
-
-            <p className="text-center text-xs leading-5 text-rose-900/70">
-              Only family accounts created in Firebase can sign in.
-            </p>
-
             {message ? (
-              <p className="text-left text-xs text-rose-700">{message}</p>
+              <p className="text-center text-base text-red-500 font-bold">{message}</p>
             ) : null}
           </form>
         </div>
