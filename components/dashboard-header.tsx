@@ -44,7 +44,7 @@ export default function DashboardHeader({
           </p>
           <h1
             className={`mt-2 font-serif font-bold text-rose-950 ${
-              mobile ? "text-2xl" : "text-3xl md:text-4xl"
+              mobile ? "text-2xl" : "text-2xl lg:text-3xl"
             }`}
           >
             {current.heading}
@@ -61,7 +61,7 @@ export default function DashboardHeader({
               className={`rounded-full border font-semibold transition ${
                 mobile
                   ? "px-3 py-1.5 text-sm"
-                  : "px-4 py-2 text-sm"
+                  : "px-2 py-2 text-sm"
               } ${
                 pathname === item.href
                   ? "bg-rose-800 text-white border-rose-800"

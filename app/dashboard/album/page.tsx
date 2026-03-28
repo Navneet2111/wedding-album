@@ -34,14 +34,14 @@ const albumItems = [
 export default function AlbumPage() {
   return (
     <section className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
         {albumItems.map((item) => (
           <article
             key={item.title}
-            className="rounded-md border border-rose-900/10 bg-[linear-gradient(140deg,rgba(255,255,255,0.88),rgba(251,230,219,0.8))] p-5 shadow-[0_10px_24px_rgba(102,35,49,0.1)]"
+            className="rounded-md border cursor-pointer border-rose-900/10 bg-[linear-gradient(140deg,rgba(255,255,255,0.88),rgba(251,230,219,0.8))] p-5 shadow-[0_10px_24px_rgba(102,35,49,0.1)]"
           >
             {/* IMAGE */}
-            <div className="relative mb-4 h-44 w-full overflow-hidden rounded-[18px]">
+            <div className="relative mb-4 h-44 md:h-60 lg:h-52 w-full overflow-hidden rounded-[18px]">
               <Image
                 src={item.image}
                 alt={item.title}
