@@ -117,7 +117,7 @@ export default function SpiralInvitationFrame({
         }}
       >
         {/* ════════════════ SPINE ════════════════ */}
-        <div
+        {/* <div
           className="spine-visible"
           style={{ width: 62, flexShrink: 0, position: "relative", zIndex: 10 }}
         >
@@ -222,7 +222,7 @@ export default function SpiralInvitationFrame({
               opacity="0.9"
             />
           </svg>
-        </div>
+        </div> */}
 
         {/* ════════════════ BOTANICAL STRIP ════════════════ */}
         <div

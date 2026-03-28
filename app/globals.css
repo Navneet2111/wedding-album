@@ -84,6 +84,18 @@ body {
   }
 }
 
+@keyframes pageFlipGlow {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.04);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
 @keyframes ganeshFloat {
   0%,
   100% {

@@ -35,6 +35,7 @@ export default function LoginForm() {
   const [pending, setPending] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const auth = getFirebaseAuth();
@@ -145,20 +146,61 @@ export default function LoginForm() {
             >
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="rounded-lg border border-[#d7b6a4] bg-white px-3 py-2.5 text-sm text-[#3f1d2b] outline-none transition focus:border-rose-700/60 focus:ring-2 focus:ring-rose-700/20"
-              required
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full rounded-lg border border-[#d7b6a4] bg-white px-3 py-2.5 pr-11 text-sm text-[#3f1d2b] outline-none transition focus:border-rose-700/60 focus:ring-2 focus:ring-rose-700/20"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-rose-900/70 transition hover:text-rose-950"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? (
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 10.7a3 3 0 0 0 4.2 4.2" />
+                    <path d="M9.9 5.1A10.7 10.7 0 0 1 12 4.9c5 0 9.3 3 11 7.1a11.8 11.8 0 0 1-5 5.9" />
+                    <path d="M6.6 6.7A12.5 12.5 0 0 0 1 12c.9 2.2 2.5 4.1 4.5 5.4" />
+                  </svg>
+                ) : (
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
 
             <button
               type="submit"
               disabled={pending}
-              className="mt-3 rounded-xl bg-rose-800 px-4 py-3 text-sm font-bold text-rose-50 hadow-[0_10px_18px_rgba(90,20,33,0.32)] transition hover:bg-rose-900 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-2 md:mt-3 rounded-xl bg-rose-800 px-4 py-3 text-sm font-bold text-rose-50 hadow-[0_10px_18px_rgba(90,20,33,0.32)] transition hover:bg-rose-900 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {pending ? "Signing in..." : "Login"}
             </button>
