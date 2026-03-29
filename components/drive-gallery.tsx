@@ -37,7 +37,7 @@ function GalleryImage({
     <>
       {!loaded ? (
         <div
-        className={`grid place-items-center text-xl animate-pulse bg-[linear-gradient(90deg,rgba(247,220,204,0.7),rgba(255,246,239,0.95),rgba(247,220,204,0.7))] bg-[length:200%_100%]  font-semibold text-rose-900/70 ${fill ? "absolute inset-0" : ""} ${className}`}
+        className={`grid place-items-center text-xl animate-pulse bg[linear-gradient(90deg,rgba(247,220,204,0.7),rgba(255,246,239,0.95),rgba(247,220,204,0.7))] bg-[length:200%_100%]  font-semibold text-rose-800 ${fill ? "absolute inset-0" : ""} ${className}`}
         >
           loading ...
         </div>
@@ -50,7 +50,7 @@ function GalleryImage({
       referrerPolicy="no-referrer"
       draggable={draggable}
       style={style}
-      className={`${fill ? "absolute inset-0 h-full w-full" : ""} ${className} ${loaded ? "opacity-100" : "opacity-0"}`}
+      className={`${fill ? "absolute inset-0 cursor-pointer h-full w-full" : ""} ${className} ${loaded ? "opacity-100" : "opacity-0"}`}
       onLoad={() => {
         loadedImageSources.add(src);
         setLoaded(true);

@@ -539,6 +539,7 @@ export default function SpiralInvitationFrame({
           {/* ── CONTENT SLOT ── */}
           {/* Scrollable section */}
           <section
+            data-dashboard-scroll-container="true"
             className={`relative ${contentClassName} pr-0 lg:pr-6 lg:pt-2`}
             style={{
               zIndex: 2,
