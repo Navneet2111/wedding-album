@@ -114,7 +114,7 @@ export default function LoginForm() {
           </h1>
 
           <p className="mb-4 mt-2 text-center text-sm text-rose-900/85">
-            Sign in with your approved family email to continue.
+            Sign in with your email to continue.
           </p>
 
           <form
@@ -132,6 +132,7 @@ export default function LoginForm() {
             </label>
             <input
               id="email"
+              placeholder="Enter Your Email"
               type="email"
               autoComplete="email"
               value={email}
@@ -149,6 +150,7 @@ export default function LoginForm() {
             <div className="relative">
               <input
                 id="password"
+                placeholder="Enter Password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 value={password}
