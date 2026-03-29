@@ -3,6 +3,8 @@ export const siteMetadata = {
   description:
     "Private wedding invitation, dashboard, albums, and videos for Anandi and Vineet.",
   ogImageAlt: "Anandi and Vineet wedding preview image",
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
 } as const;
 
 export const siteUrl =

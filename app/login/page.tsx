@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import LoginForm from "@/components/login-form";
-import { openGraphImageUrl, twitterImageUrl } from "@/lib/site-metadata";
+import {
+  openGraphImageUrl,
+  siteMetadata,
+  siteUrl,
+  twitterImageUrl,
+} from "@/lib/site-metadata";
 export const metadata: Metadata = {
   title: "Login",
   description:
@@ -9,10 +14,13 @@ export const metadata: Metadata = {
     title: "Login | Anandi and Vineet Wedding",
     description:
       "Secure login for the private Anandi and Vineet wedding dashboard, albums, and video gallery.",
+    url: `${siteUrl}/login`,
     images: [
       {
         url: openGraphImageUrl,
         alt: "Wedding image for Anandi and Vineet login page",
+        width: siteMetadata.ogImageWidth,
+        height: siteMetadata.ogImageHeight,
       },
     ],
   },
@@ -21,7 +29,14 @@ export const metadata: Metadata = {
     title: "Login | Anandi and Vineet Wedding",
     description:
       "Secure login for the private Anandi and Vineet wedding dashboard, albums, and video gallery.",
-    images: [twitterImageUrl],
+    images: [
+      {
+        url: twitterImageUrl,
+        alt: "Wedding image for Anandi and Vineet login page",
+        width: siteMetadata.ogImageWidth,
+        height: siteMetadata.ogImageHeight,
+      },
+    ],
   },
 };
 

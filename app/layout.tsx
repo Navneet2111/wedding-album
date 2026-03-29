@@ -37,11 +37,14 @@ export const metadata: Metadata = {
     title: siteMetadata.title,
     description: siteMetadata.description,
     type: "website",
+    url: siteUrl,
     siteName: siteMetadata.title,
     images: [
       {
         url: openGraphImageUrl,
         alt: siteMetadata.ogImageAlt,
+        width: siteMetadata.ogImageWidth,
+        height: siteMetadata.ogImageHeight,
       },
     ],
   },
@@ -49,11 +52,14 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteMetadata.title,
     description: siteMetadata.description,
-    images: [twitterImageUrl],
-  },
-  robots: {
-    index: false,
-    follow: false,
+    images: [
+      {
+        url: twitterImageUrl,
+        alt: siteMetadata.ogImageAlt,
+        width: siteMetadata.ogImageWidth,
+        height: siteMetadata.ogImageHeight,
+      },
+    ],
   },
 };
 
