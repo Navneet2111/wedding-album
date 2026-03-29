@@ -15,5 +15,6 @@ export const siteUrl =
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
 
-export const openGraphImageUrl = `${siteUrl}/opengraph-image.png`;
-export const twitterImageUrl = `${siteUrl}/twitter-image.png`;
+export const openGraphImageUrl =
+  "https://i.pinimg.com/736x/30/12/85/301285f850a317256209321bffc63792.jpg";
+export const twitterImageUrl = openGraphImageUrl;
