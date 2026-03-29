@@ -2,7 +2,9 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 import CloseIcon from "@/components/icons/close-icon";
+import { getFirebaseAuth } from "@/lib/firebase-client";
 import type { DriveImage } from "@/lib/google-drive";
 
 const loadedImageSources = new Set<string>();
@@ -38,24 +40,24 @@ function GalleryImage({
     <>
       {!loaded ? (
         <div
-        className={`grid place-items-center text-xl animate-pulse bg[linear-gradient(90deg,rgba(247,220,204,0.7),rgba(255,246,239,0.95),rgba(247,220,204,0.7))] bg-[length:200%_100%]  font-semibold text-rose-800 ${fill ? "absolute inset-0" : ""} ${className}`}
+          className={`grid place-items-center text-xl animate-pulse bg[linear-gradient(90deg,rgba(247,220,204,0.7),rgba(255,246,239,0.95),rgba(247,220,204,0.7))] bg-[length:200%_100%]  font-semibold text-rose-800 ${fill ? "absolute inset-0" : ""} ${className}`}
         >
           loading ...
         </div>
       ) : null}
       <img
         src={src}
-      alt={alt}
-      loading={loading}
-      decoding="async"
-      referrerPolicy="no-referrer"
-      draggable={draggable}
-      style={style}
-      className={`${fill ? "absolute inset-0 cursor-pointer h-full w-full" : ""} ${className} ${loaded ? "opacity-100" : "opacity-0"}`}
-      onLoad={() => {
-        loadedImageSources.add(src);
-        setLoaded(true);
-      }}
+        alt={alt}
+        loading={loading}
+        decoding="async"
+        referrerPolicy="no-referrer"
+        draggable={draggable}
+        style={style}
+        className={`${fill ? "absolute inset-0 cursor-pointer h-full w-full" : ""} ${className} ${loaded ? "opacity-100" : "opacity-0"}`}
+        onLoad={() => {
+          loadedImageSources.add(src);
+          setLoaded(true);
+        }}
         onError={() => {
           if (srcIndex < sources.length - 1) {
             setLoaded(false);
@@ -77,7 +79,16 @@ type DriveGalleryProps = {
 export default function DriveGallery({ images, title }: DriveGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
+  const [currentEmail, setCurrentEmail] = useState("");
   const isSideways = rotation % 180 !== 0;
+
+  useEffect(() => {
+    const auth = getFirebaseAuth();
+
+    return onAuthStateChanged(auth, (user) => {
+      setCurrentEmail(user?.email?.toLowerCase() ?? "");
+    });
+  }, []);
 
   useEffect(() => {
     if (activeIndex === null) {
@@ -118,6 +129,17 @@ export default function DriveGallery({ images, title }: DriveGalleryProps) {
   }
 
   const currentImage = activeIndex === null ? null : images[activeIndex];
+  const shouldHideDownloadButton = currentEmail.includes("@06");
+  const downloadName =
+    currentImage === null
+      ? ""
+      : `${
+          title
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "") || "image"
+        }-${activeIndex + 1}.jpg`;
 
   function showPrevious() {
     setRotation(0);
@@ -183,6 +205,30 @@ export default function DriveGallery({ images, title }: DriveGalleryProps) {
           >
             {"\u21BB"}
           </button>
+
+          {!shouldHideDownloadButton ? (
+            <a
+              href={`https://drive.google.com/uc?export=download&id=${currentImage.id}`}
+              download={downloadName}
+              aria-label="Download image"
+              className="absolute right-3 top-[7.25rem] z-20 grid h-11 w-11 place-items-center rounded-full bg-white/12 text-white backdrop-blur hover:bg-white/18 md:right-6 md:top-[8.5rem]"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3v11" />
+                <path d="m7 10 5 5 5-5" />
+                <path d="M5 21h14" />
+              </svg>
+            </a>
+          ) : null}
 
           <div className="flex h-full flex-col pb-4 md:px-6 md:pb-6 md:pt-6">
             <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden">
