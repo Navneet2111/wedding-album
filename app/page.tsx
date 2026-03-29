@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import HomeClient from "@/components/home-client";
+import { metaPreviewImage } from "@/lib/site-metadata";
 
-const metaPreviewImage =
-  // "https://i.pinimg.com/736x/d9/64/35/d96435c0442c2de1d33129993556331f.jpg";
-  "https://i.pinimg.com/736x/30/12/85/301285f850a317256209321bffc63792.jpg";
 export const metadata: Metadata = {
   title: "Wedding Album",
   description:
