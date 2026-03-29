@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { getAlbumItem } from "@/app/dashboard/album/album-data";
 import DashboardActionButton from "@/components/dashboard-action-button";
 import DashboardHeader from "@/components/dashboard-header";
+import ArrowUpIcon from "@/components/icons/arrow-up-icon";
 import SpiralInvitationFrame from "@/components/spral-invitation-frame";
 
 type DashboardShellProps = {
@@ -44,10 +45,24 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     };
   }, [pathname]);
 
-  function handleScrollToTop() {
+  function getActiveScrollContainer() {
     const scrollContainer = document.querySelector<HTMLElement>(
       "[data-dashboard-scroll-container='true']"
     );
+
+    if (
+      scrollContainer &&
+      window.matchMedia("(min-width: 768px)").matches &&
+      scrollContainer.offsetParent !== null
+    ) {
+      return scrollContainer;
+    }
+
+    return null;
+  }
+
+  function handleScrollToTop() {
+    const scrollContainer = getActiveScrollContainer();
 
     if (scrollContainer) {
       scrollContainer.scrollTo({ top: 0, behavior: "smooth" });
@@ -55,6 +70,8 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
+    document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+    document.body.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
@@ -121,9 +138,9 @@ export default function DashboardShell({ children }: DashboardShellProps) {
           type="button"
           onClick={handleScrollToTop}
           aria-label="Scroll to top"
-          className="fixed bottom-0 right-0 z-50 h-14 w-14 cursor-pointer rounded-tl-[18px] bg-rose-900 text-[28px] leading-none text-rose-50 shadow-[0_12px_26px_rgba(70,20,35,0.28)] transition hover:bg-rose-950"
+          className="fixed bottom-0 right-0 z-50 grid h-14 w-14 cursor-pointer place-items-center rounded-tl-[18px] bg-rose-900 text-rose-50 shadow-[0_12px_26px_rgba(70,20,35,0.28)] transition hover:bg-rose-950"
         >
-          &#129093;
+          <ArrowUpIcon className="h-6 w-6" />
         </button>
       ) : null}
     </>

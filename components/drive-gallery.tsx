@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
+import CloseIcon from "@/components/icons/close-icon";
 import type { DriveImage } from "@/lib/google-drive";
 
 const loadedImageSources = new Set<string>();
@@ -169,9 +170,9 @@ export default function DriveGallery({ images, title }: DriveGalleryProps) {
               setRotation(0);
               setActiveIndex(null);
             }}
-            className="absolute right-3 top-3 z-20 grid h-11 w-11 place-items-center rounded-full bg-white/12 text-3xl leading-none text-white backdrop-blur hover:bg-white/18 md:right-6 md:top-6"
+            className="absolute right-3 top-3 z-20 grid h-11 w-11 place-items-center rounded-full bg-white/12 text-white backdrop-blur hover:bg-white/18 md:right-6 md:top-6"
           >
-            {"\u{1F5D9}"}
+            <CloseIcon className="h-5 w-5" />
           </button>
 
           <button
