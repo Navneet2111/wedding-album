@@ -198,9 +198,13 @@ export default function DriveGallery({ images, title }: DriveGalleryProps) {
               <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
                 <div
                   className="relative flex h-full w-full items-center justify-center transition-transform duration-300 ease-out"
+                  style={{
+                    transform: `rotate(${rotation}deg)`,
+                    transformOrigin: "center center",
+                  }}
                 >
                   <GalleryImage
-                    key={`${currentImage.id}-${rotation}`}
+                    key={currentImage.id}
                     sources={currentImage.fullSources}
                     alt={`${title} preview`}
                     loading="eager"
@@ -209,8 +213,6 @@ export default function DriveGallery({ images, title }: DriveGalleryProps) {
                     style={{
                       maxWidth: isSideways ? "100vh" : "100vw",
                       maxHeight: isSideways ? "100vw" : "100vh",
-                      transform: `rotate(${rotation}deg)`,
-                      transformOrigin: "center center",
                     }}
                   />
                 </div>
