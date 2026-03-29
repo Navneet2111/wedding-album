@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import HomeClient from "@/components/home-client";
-
-const metaPreviewImage =
-  // "https://i.pinimg.com/736x/d9/64/35/d96435c0442c2de1d33129993556331f.jpg";
-  "https://i.pinimg.com/736x/30/12/85/301285f850a317256209321bffc63792.jpg";
+import { openGraphImageUrl, twitterImageUrl } from "@/lib/site-metadata";
 export const metadata: Metadata = {
   title: "Wedding Album",
   description:
@@ -14,7 +11,7 @@ export const metadata: Metadata = {
       "Open the wedding Album of  Vineet & Anandi and continue to the private dashboard login.",
     images: [
       {
-        url: metaPreviewImage,
+        url: openGraphImageUrl,
         alt: "Wedding image for Anandi and Vineet",
       },
     ],
@@ -24,7 +21,7 @@ export const metadata: Metadata = {
     title: "Wedding Album | Anandi and Vineet Wedding",
     description:
       "Open the wedding Album for Anandi and Vineet and continue to the private dashboard login.",
-    images: [metaPreviewImage],
+    images: [twitterImageUrl],
   },
 };
 
