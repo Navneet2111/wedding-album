@@ -1,18 +1,17 @@
 "use client";
 
 import DriveGallery from "@/components/drive-gallery";
+import FaceIndexBuilder from "@/components/face-index-builder";
+import type {
+  FaceSearchDescriptorEntry,
+  SearchableDriveImage,
+} from "@/lib/face-search-types";
 import type { DriveImage } from "@/lib/google-drive";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type SearchableDriveImage = {
-  id: string;
-  albumSlug: string;
-  albumTitle: string;
-  imageLabel: string;
-};
-
 type FaceSearchPanelProps = {
   images: SearchableDriveImage[];
+  descriptorEntries?: FaceSearchDescriptorEntry[];
 };
 
 type SearchMatch = SearchableDriveImage & {
@@ -38,17 +37,18 @@ type FaceApiModule = {
       withFaceDescriptor(): Promise<FaceApiDetection | undefined>;
     };
   };
+  detectAllFaces(
+    input: HTMLImageElement,
+  ): {
+    withFaceLandmarks(): {
+      withFaceDescriptors(): Promise<FaceApiDetection[]>;
+    };
+  };
   euclideanDistance(
     first: FaceApiDescriptor,
     second: FaceApiDescriptor,
   ): number;
 };
-
-declare global {
-  interface Window {
-    faceapi?: FaceApiModule;
-  }
-}
 
 const FACE_API_SCRIPT_URL =
   "https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js";
@@ -56,14 +56,37 @@ const FACE_API_MODELS_URL =
   "https://justadudewhohacks.github.io/face-api.js/models";
 
 let faceApiLoader: Promise<FaceApiModule> | null = null;
-const descriptorCache = new Map<string, Promise<FaceApiDescriptor | null>>();
+const descriptorCache = new Map<string, Promise<FaceApiDescriptor[]>>();
 const SEARCH_CONCURRENCY = 10;
-const MATCH_THRESHOLD = 0.5;
 const STORAGE_KEY = "face-search-state-v1";
+
+const SEARCH_MODES = [
+  {
+    id: "accurate",
+    label: "Accurate",
+    threshold: 0.5,
+    helpText: "Fewer wrong matches, but may miss some photos.",
+  },
+  {
+    id: "balanced",
+    label: "Balanced",
+    threshold: 0.53,
+    helpText: "Best mix of accuracy and more results.",
+  },
+  // {
+  //   id: "wide",
+  //   label: "Wide",
+  //   threshold: 0.57,
+  //   helpText: "Finds more photos, but can include wrong people.",
+  // },
+] as const;
+
+type SearchModeId = (typeof SEARCH_MODES)[number]["id"];
 
 type PersistedState = {
   matches: SearchMatch[];
   status: string;
+  searchMode: SearchModeId;
 };
 
 function getProxyImageUrl(id: string, size = 1200) {
@@ -143,18 +166,19 @@ async function loadFaceApi() {
   if (!faceApiLoader) {
     faceApiLoader = (async () => {
       await loadScript(FACE_API_SCRIPT_URL);
+      const faceapi = (window as Window & { faceapi?: FaceApiModule }).faceapi;
 
-      if (!window.faceapi) {
+      if (!faceapi) {
         throw new Error("Face API did not initialize.");
       }
 
       await Promise.all([
-        window.faceapi.nets.ssdMobilenetv1.loadFromUri(FACE_API_MODELS_URL),
-        window.faceapi.nets.faceLandmark68Net.loadFromUri(FACE_API_MODELS_URL),
-        window.faceapi.nets.faceRecognitionNet.loadFromUri(FACE_API_MODELS_URL),
+        faceapi.nets.ssdMobilenetv1.loadFromUri(FACE_API_MODELS_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(FACE_API_MODELS_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(FACE_API_MODELS_URL),
       ]);
 
-      return window.faceapi;
+      return faceapi;
     })();
   }
 
@@ -183,24 +207,65 @@ async function getFaceDescriptor(faceapi: FaceApiModule, imageSrc: string) {
   return result?.descriptor;
 }
 
+async function getFaceDescriptors(faceapi: FaceApiModule, imageSrc: string) {
+  const image = await loadImageElement(imageSrc);
+  const results = await faceapi
+    .detectAllFaces(image)
+    .withFaceLandmarks()
+    .withFaceDescriptors();
+
+  return results.map((result) => result.descriptor);
+}
+
 function sortMatches(matches: SearchMatch[]) {
   return [...matches].sort((first, second) => first.score - second.score);
 }
 
-function getCachedDescriptor(faceapi: FaceApiModule, image: SearchableDriveImage) {
+function toFaceApiDescriptors(entry: FaceSearchDescriptorEntry) {
+  const rawDescriptors =
+    entry.descriptors && entry.descriptors.length
+      ? entry.descriptors
+      : entry.descriptor
+        ? [entry.descriptor]
+        : [];
+
+  return rawDescriptors.map((descriptor) => Float32Array.from(descriptor));
+}
+
+function getCachedDescriptors(faceapi: FaceApiModule, image: SearchableDriveImage) {
   const cachedDescriptor = descriptorCache.get(image.id);
 
   if (cachedDescriptor) {
     return cachedDescriptor;
   }
 
-  const descriptorPromise = getFaceDescriptor(faceapi, getProxyImageUrl(image.id))
-    .then((descriptor) => descriptor ?? null)
-    .catch(() => null);
+  const descriptorPromise = getFaceDescriptors(faceapi, getProxyImageUrl(image.id))
+    .catch(() => []);
 
   descriptorCache.set(image.id, descriptorPromise);
 
   return descriptorPromise;
+}
+
+function getBestScore(
+  faceapi: FaceApiModule,
+  referenceDescriptor: FaceApiDescriptor,
+  candidateDescriptors: FaceApiDescriptor[],
+) {
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  for (const candidateDescriptor of candidateDescriptors) {
+    const score = faceapi.euclideanDistance(
+      referenceDescriptor,
+      candidateDescriptor,
+    );
+
+    if (score < bestScore) {
+      bestScore = score;
+    }
+  }
+
+  return bestScore;
 }
 
 async function mapWithConcurrency<TInput, TOutput>(
@@ -257,26 +322,43 @@ function getDownloadName(match: SearchMatch, index: number) {
   return `${albumName}-${index + 1}.jpg`;
 }
 
-export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
+export default function FaceSearchPanel({
+  images,
+  descriptorEntries = [],
+}: FaceSearchPanelProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [matches, setMatches] = useState<SearchMatch[]>([]);
   const [status, setStatus] = useState(
-    "Upload one clear face photo, then run search.",
+    "",
   );
   const [isSearching, setIsSearching] = useState(false);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [isModelReady, setIsModelReady] = useState(false);
   const [processedCount, setProcessedCount] = useState(0);
+  const [searchMode, setSearchMode] = useState<SearchModeId>("balanced");
   const searchSessionRef = useRef(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const descriptorLookup = useMemo(
+    () =>
+      new Map(
+        descriptorEntries.map((entry) => [
+          entry.id,
+          toFaceApiDescriptors(entry),
+        ]),
+      ),
+    [descriptorEntries],
+  );
+  const indexedImageCount = descriptorLookup.size;
+  const activeSearchMode =
+    SEARCH_MODES.find((mode) => mode.id === searchMode) ?? SEARCH_MODES[1];
 
   const progressLabel = useMemo(() => {
     if (!isSearching) {
       return null;
     }
 
-    return `${processedCount} / ${images.length}  scanned`;
+    return `${processedCount} / ${images.length} scanned`;
   }, [images.length, isSearching, processedCount]);
   const matchedDriveImages = useMemo(
     () => matches.map((match) => buildDriveImage(match.id)),
@@ -293,7 +375,8 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
         try {
           const parsedState = JSON.parse(storedState) as PersistedState;
           setMatches(parsedState.matches ?? []);
-          setStatus(parsedState.status ?? "Upload one clear face photo, then run search.");
+          // setStatus(parsedState.status ?? "Upload one clear face photo, then run search.");
+          setSearchMode(parsedState.searchMode ?? "balanced");
         } catch {
           window.localStorage.removeItem(STORAGE_KEY);
         }
@@ -327,6 +410,7 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
     const nextState: PersistedState = {
       matches,
       status,
+      searchMode,
     };
 
     try {
@@ -335,6 +419,7 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
       const reducedState: PersistedState = {
         matches,
         status,
+        searchMode,
       };
 
       try {
@@ -343,7 +428,7 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
         window.localStorage.removeItem(STORAGE_KEY);
       }
     }
-  }, [matches, status]);
+  }, [matches, searchMode, status]);
 
   useEffect(() => {
     return () => {
@@ -358,10 +443,11 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
     setSelectedFile(null);
     setPreviewUrl(null);
     setMatches([]);
-    setStatus("Upload one clear face photo, then run search.");
+    setStatus("");
     setProcessedCount(0);
     setIsSearching(false);
     setIsDownloadingAll(false);
+    setSearchMode("balanced");
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -409,7 +495,11 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
     setIsSearching(true);
     setProcessedCount(0);
     setMatches([]);
-    setStatus("Scanning all photos...");
+    // setStatus(
+    //   indexedImageCount
+    //     ? "Scanning indexed faces..."
+    //     : "Scanning all photos...",
+    // );
 
     try {
       const faceapi = await loadFaceApi();
@@ -438,22 +528,25 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
             }
 
             try {
-              const candidateDescriptor = await getCachedDescriptor(faceapi, image);
+              const candidateDescriptors =
+                descriptorLookup.get(image.id) ??
+                (await getCachedDescriptors(faceapi, image));
 
               if (searchSessionRef.current !== searchSessionId) {
                 return null;
               }
 
-              if (!candidateDescriptor) {
+              if (!candidateDescriptors.length) {
                 return null;
               }
 
-              const score = faceapi.euclideanDistance(
+              const score = getBestScore(
+                faceapi,
                 referenceDescriptor,
-                candidateDescriptor,
+                candidateDescriptors,
               );
 
-              if (score <= MATCH_THRESHOLD) {
+              if (score <= activeSearchMode.threshold) {
                 const nextMatch = {
                   ...image,
                   score,
@@ -550,11 +643,11 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
               const nextFile = event.target.files?.[0] ?? null;
               setSelectedFile(nextFile);
               setMatches([]);
-              setStatus(
-                nextFile
-                  ? "Ready to search."
-                  : "Upload one clear face photo, then run search.",
-              );
+              // setStatus(
+              //   nextFile
+              //     ? "Ready to search."
+              //     : "Upload one clear face photo, then run search.",
+              // );
 
               revokePreviewUrl(previewUrl);
 
@@ -586,38 +679,63 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
             )}
 
             <div className="flex-1">
-              <button
-                type="button"
-                onClick={handleSearch}
-                disabled={!selectedFile || isSearching || !isModelReady}
-                className="rounded-full bg-rose-800 px-5 py-3 text-sm font-bold text-rose-50 transition hover:bg-rose-900 disabled:cursor-not-allowed disabled:bg-rose-300"
-              >
-                {isSearching
-                  ? "Searching..."
-                  : isModelReady
-                    ? "Search Face"
-                    : "Loading Model..."}
-              </button>
-              <p className="mt-3 text-sm leading-6 text-rose-900 font-medium">{status}</p>
+ 
+              <div className="mt-3 flex flex-wrap gap-2">
+                {SEARCH_MODES.map((mode) => (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => setSearchMode(mode.id)}
+                    disabled={isSearching}
+                    className={`rounded-full border px-2 py-2 text-xs font-bold  tracking-[0.1em] transition ${
+                      searchMode === mode.id
+                        ? "border-rose-800 bg-red-100 -600 text-rose-800"
+                        : "border-rose-800/20 text-rose-900 hover:bg-rose-50"
+                    } disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
+              
+              <p className="mt-2 text-xs leading-5 text-rose-900/70">
+                {activeSearchMode.helpText}
+              </p>
+              
               {progressLabel ? (
                 <p className="mt-2 text-xs font-bold uppercase tracking-[0.24em] text-rose-900">
                   {progressLabel}
                 </p>
               ) : null}
-              {isSearching && matches.length ? (
-                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.17em] md:tracking-[0.24em] text-white bg-rose-900 p-1.5 rounded">
-                  {matches.length} matches found so far
-                </p>
-              ) : null}
+              
+              <p className="mt-3 text-sm leading-6 text-rose-900 font-medium">{status}</p>
+
+                           <button
+                type="button"
+                onClick={handleSearch}
+                disabled={!selectedFile || isSearching || !isModelReady}
+                className="rounded-full bg-rose-800 px-5 py-3 mr-2 text-sm font-bold text-rose-50 transition hover:bg-rose-900 disabled:cursor-not-allowed disabled:bg-rose-300"
+              >
+                {isSearching
+                  ? "Searching..."
+                  : isModelReady
+                    ? "Search "
+                    : "Loading Model..."}
+              </button>
               {matches.length ? (
                 <button
                   type="button"
                   onClick={handleDownloadAll}
                   disabled={isDownloadingAll}
-                  className="mt-3 rounded-full border border-rose-800/20 px-5 py-3 text-sm font-bold text-rose-900 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-3 rounded-full border border-rose-800/20 px-3 py-3 text-sm font-bold text-rose-900 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isDownloadingAll ? "Downloading..." : "Download All"}
                 </button>
+              ) : null}
+              {isSearching && matches.length ? (
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.17em] md:tracking-[0.24em] text-white bg-rose-900 p-1.5 rounded">
+                  {matches.length} matches found so far
+                </p>
               ) : null}
             </div>
           </div>
@@ -644,6 +762,7 @@ export default function FaceSearchPanel({ images }: FaceSearchPanelProps) {
           </div>
         )}
       </div>
+      {/* <FaceIndexBuilder images={images} /> */}
     </section>
   );
 }

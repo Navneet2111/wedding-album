@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { albumItems } from "@/app/dashboard/album/album-data";
-import FaceSearchPanel from "@/components/face-search-panel";
-import { getDriveImagesFromFolders } from "@/lib/google-drive";
+import FaceSearchPanelServer from "@/components/face-search-panel-server";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -11,28 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const searchableAlbums = albumItems.filter(
-    (item) => (item.driveFolderIds?.length ?? 0) > 0 || item.driveFolderId,
-  );
-
-  const searchImages = (
-    await Promise.all(
-      searchableAlbums.map(async (album) => {
-        const folderIds =
-          album.driveFolderIds ??
-          (album.driveFolderId ? [album.driveFolderId] : []);
-        const images = await getDriveImagesFromFolders(folderIds);
-
-        return images.map((image, index) => ({
-          id: image.id,
-          albumSlug: album.slug,
-          albumTitle: album.title,
-          imageLabel: `${album.shortLabel} ${index + 1}`,
-        }));
-      }),
-    )
-  ).flat();
-
   return (
     <section className="grid gap-6 rounded-[28px] md:bg-white/70  md:p-6 md:shadow-[0_12px_28px_rgba(102,35,49,0.1)]">
       <div className="space-y-5 rounded-xl bg-white/70 px-3 py-6 md:p-6 shadow-[0_12px_28px_rgba(102,35,49,0.1)] border border-rose-900/80">
@@ -58,7 +34,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
       </div>
-      <FaceSearchPanel images={searchImages} />
+      <FaceSearchPanelServer />
     </section>
   );
 }
