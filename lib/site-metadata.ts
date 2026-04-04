@@ -1,7 +1,7 @@
 export const siteMetadata = {
   title: "Anandi and Vineet Wedding",
   description:
-    "Private wedding invitation, dashboard, albums, and videos for Anandi and Vineet.",
+    "Private wedding dashboard, albums, and videos of Anandi and Vineet.",
   ogImageAlt: "Anandi and Vineet wedding preview image",
   ogImageWidth: 1200,
   ogImageHeight: 530,

@@ -58,6 +58,7 @@ export default function DashboardHeader({
             <Link
               key={item.href}
               href={item.href}
+              prefetch={true}
               className={`rounded-full border font-semibold transition ${
                 mobile
                   ? "px-3 py-1.5 text-sm"
