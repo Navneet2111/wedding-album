@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
       "Private wedding dashboard, albums, and videos of Anandi and Vineet.",
     start_url: "/",
     display: "standalone",
-    background_color: "#2d1513",
+    background_color: "#83191C",
     theme_color: "#2d1513",
     icons: [
       {
