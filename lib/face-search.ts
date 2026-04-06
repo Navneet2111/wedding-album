@@ -4,6 +4,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { albumItems } from "@/app/dashboard/album/album-data";
+import { getAlbumDriveFolderIds } from "@/app/dashboard/album/album-drive-env";
 import type {
   FaceSearchDescriptorEntry,
   FaceSearchDescriptorIndexFile,
@@ -21,9 +22,7 @@ type FaceSearchSource = {
 
 function getFaceSearchSources(): FaceSearchSource[] {
   return albumItems.flatMap((album) => {
-    const folderIds =
-      album.driveFolderIds ??
-      (album.driveFolderId ? [album.driveFolderId] : []);
+    const folderIds = getAlbumDriveFolderIds(album.slug);
 
     return folderIds.map((folderId, index) => ({
       albumSlug: album.slug,

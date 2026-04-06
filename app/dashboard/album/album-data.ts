@@ -6,8 +6,6 @@ export type AlbumItem = {
   image: string;
   description: string;
   highlights: string[];
-  driveFolderId?: string;
-  driveFolderIds?: string[];
 };
 
 export const albumItems: AlbumItem[] = [
@@ -24,11 +22,6 @@ export const albumItems: AlbumItem[] = [
       "Family blessings and candid smiles",
       "Stage moments with warm lighting",
     ],
-    driveFolderId: "1ILfKxgKY8fepQKUqghjdpQRTgcNw1Pr_",
-    driveFolderIds: [
-      "1ILfKxgKY8fepQKUqghjdpQRTgcNw1Pr_",
-      "1vWkQPAweGZ7rYTqWYBMjEFKgZk1csjOc",
-    ],
   },
   {
     slug: "haldi",
@@ -43,8 +36,6 @@ export const albumItems: AlbumItem[] = [
       "Playful candid moments",
       "Music, laughter, and family energy",
     ],
-    driveFolderId: "1q7BwqXx7339H-w71UCBLMHHF5UsOarlT",
-    driveFolderIds: ["1q7BwqXx7339H-w71UCBLMHHF5UsOarlT"],
   },
   {
     slug: "tilak",
@@ -59,8 +50,6 @@ export const albumItems: AlbumItem[] = [
       "Blessings and formal portraits",
       "Close-up details from the ceremony",
     ],
-    driveFolderId: "16NUVaQPYTFjgWNmWn_LV_CaTPYAai-vX",
-    driveFolderIds: ["16NUVaQPYTFjgWNmWn_LV_CaTPYAai-vX"],
   },
   {
     slug: "wedding",
@@ -75,8 +64,6 @@ export const albumItems: AlbumItem[] = [
       "Couple portraits and stage moments",
       "Guest celebrations and festive details",
     ],
-    driveFolderId: "1hJZaWEDKIHEHEAzzjCPCmDkvDwz547Qd",
-    driveFolderIds: ["1hJZaWEDKIHEHEAzzjCPCmDkvDwz547Qd"],
   },
 ];
 

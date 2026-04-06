@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { albumItems, getAlbumItem } from "@/app/dashboard/album/album-data";
+import {
+  getAlbumDriveFolderIds,
+  getAlbumPrimaryDriveFolderId,
+} from "@/app/dashboard/album/album-drive-env";
 import DriveGallery from "@/components/drive-gallery";
 import { getDriveImagesFromFolders } from "@/lib/google-drive";
 
@@ -37,10 +41,9 @@ export default async function AlbumDetailPage(props: AlbumDetailPageProps) {
     notFound();
   }
 
-  const showPreviewGrid = !item.driveFolderId;
-  const driveFolderIds =
-    item.driveFolderIds ??
-    (item.driveFolderId ? [item.driveFolderId] : []);
+  const primaryDriveFolderId = getAlbumPrimaryDriveFolderId(item.slug);
+  const showPreviewGrid = !primaryDriveFolderId;
+  const driveFolderIds = getAlbumDriveFolderIds(item.slug);
   const driveImages = driveFolderIds.length
     ? await getDriveImagesFromFolders(driveFolderIds)
     : [];
