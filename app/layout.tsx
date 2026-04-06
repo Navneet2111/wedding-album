@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
+//this
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
