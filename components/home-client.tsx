@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import InvitationCard from "@/components/invitation-card";
 import InvitationFrame from "@/components/invitation-frame";
+import PwaInstallPrompt from "@/components/pwa-install-prompt";
 
 export default function HomeClient() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function HomeClient() {
             A V
           </span>
         </button>
+        <PwaInstallPrompt />
       </InvitationCard>
     </InvitationFrame>
   );
