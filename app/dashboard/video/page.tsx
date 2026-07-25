@@ -12,7 +12,7 @@ const videoItems = [
     title: "Engagement Trailer",
     length: "02:13",
     note: "Short cinematic teaser.",
-    embedUrl: "https://www.youtube.com/embed/EEfqFG5XlxE",
+    embedUrl: process.env.VIDEO_EMBED_URL_ENGAGEMENT_TRAILER?.trim(),
   },
   { title: "Wedding Trailer", length: "02:15", note: "Short cinematic teaser." },
   {
