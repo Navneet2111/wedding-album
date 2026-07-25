@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import AuthLoader from "@/components/auth-loader";
 import { getFirebaseAuth } from "@/lib/firebase-client";
+import { hasFirebaseConfig, onLocalAuthStateChanged } from "@/lib/local-auth";
 
 type AuthGuardProps = {
   children: ReactNode;
@@ -16,9 +17,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const auth = getFirebaseAuth();
-
-    return onAuthStateChanged(auth, (user) => {
+    const handleUser = (user: { email?: string | null } | null) => {
       if (!user) {
         if (pathname !== "/login") {
           router.replace("/");
@@ -33,7 +32,15 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       }
 
       setReady(true);
-    });
+    };
+
+    if (!hasFirebaseConfig()) {
+      return onLocalAuthStateChanged(handleUser);
+    }
+
+    const auth = getFirebaseAuth();
+
+    return onAuthStateChanged(auth, handleUser);
   }, [pathname, router]);
 
   if (!ready) {

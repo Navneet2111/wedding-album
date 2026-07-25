@@ -5,6 +5,11 @@ import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import AuthLoader from "@/components/auth-loader";
 import InvitationFrame from "@/components/invitation-frame";
 import { getFirebaseAuth } from "@/lib/firebase-client";
+import {
+  getLocalAuthUser,
+  hasFirebaseConfig,
+  signInWithLocalCredentials,
+} from "@/lib/local-auth";
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
@@ -38,6 +43,14 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    if (!hasFirebaseConfig()) {
+      if (getLocalAuthUser()) {
+        window.location.replace("/dashboard");
+      }
+
+      return;
+    }
+
     const auth = getFirebaseAuth();
 
     return onAuthStateChanged(auth, (user) => {
@@ -63,6 +76,16 @@ export default function LoginForm() {
     setMessage(null);
 
     try {
+      if (!hasFirebaseConfig()) {
+        if (!signInWithLocalCredentials(email, password)) {
+          setMessage("Invalid email or password.");
+          return;
+        }
+
+        window.location.replace("/dashboard");
+        return;
+      }
+
       const auth = getFirebaseAuth();
       await signInWithEmailAndPassword(auth, email.trim(), password);
       window.location.replace("/dashboard");

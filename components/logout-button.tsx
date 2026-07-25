@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signOut } from "firebase/auth";
 import AuthLoader from "@/components/auth-loader";
 import { getFirebaseAuth } from "@/lib/firebase-client";
+import { hasFirebaseConfig, signOutLocalAuth } from "@/lib/local-auth";
 
 type LogoutButtonProps = {
   className: string;
@@ -20,7 +21,11 @@ export default function LogoutButton({ className }: LogoutButtonProps) {
     setPending(true);
 
     try {
-      await signOut(getFirebaseAuth());
+      if (hasFirebaseConfig()) {
+        await signOut(getFirebaseAuth());
+      } else {
+        signOutLocalAuth();
+      }
     } catch {
       // Ignore logout errors and force the route change.
     } finally {

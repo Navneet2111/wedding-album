@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import CloseIcon from "@/components/icons/close-icon";
 import { getFirebaseAuth } from "@/lib/firebase-client";
+import { hasFirebaseConfig, onLocalAuthStateChanged } from "@/lib/local-auth";
 import type { DriveImage } from "@/lib/google-drive";
 
 const loadedImageSources = new Set<string>();
@@ -96,6 +97,12 @@ export default function DriveGallery({
   const isSideways = rotation % 180 !== 0;
 
   useEffect(() => {
+    if (!hasFirebaseConfig()) {
+      return onLocalAuthStateChanged((user) => {
+        setCurrentEmail(user?.email?.toLowerCase() ?? "");
+      });
+    }
+
     const auth = getFirebaseAuth();
 
     return onAuthStateChanged(auth, (user) => {
