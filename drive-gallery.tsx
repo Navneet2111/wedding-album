@@ -91,6 +91,8 @@ export default function DriveGallery({
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
   const [currentEmail, setCurrentEmail] = useState("");
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareMessage, setShareMessage] = useState("");
   const desktopThumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const mobileThumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -122,12 +124,12 @@ export default function DriveGallery({
         setActiveIndex((current) =>
           current === null
             ? current
-            : (current - 1 + images.length) % images.length
+            : (current - 1 + images.length) % images.length,
         );
       } else if (event.key === "ArrowRight") {
         setRotation(0);
         setActiveIndex((current) =>
-          current === null ? current : (current + 1) % images.length
+          current === null ? current : (current + 1) % images.length,
         );
       }
     }
@@ -180,15 +182,66 @@ export default function DriveGallery({
   function showPrevious() {
     setRotation(0);
     setActiveIndex((current) =>
-      current === null ? 0 : (current - 1 + images.length) % images.length
+      current === null ? 0 : (current - 1 + images.length) % images.length,
     );
   }
 
   function showNext() {
     setRotation(0);
     setActiveIndex((current) =>
-      current === null ? 0 : (current + 1) % images.length
+      current === null ? 0 : (current + 1) % images.length,
     );
+  }
+
+  async function shareCurrentImage() {
+    if (!currentImage || !downloadName || isSharing) return;
+
+    setIsSharing(true);
+    setShareMessage("");
+
+    try {
+      const response = await fetch(
+        `/api/drive/image/${currentImage.id}?size=2000`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Image could not be loaded for sharing.");
+      }
+
+      const blob = await response.blob();
+      const imageFile = new File([blob], downloadName, {
+        type: blob.type || "image/jpeg",
+      });
+      const shareData = {
+        files: [imageFile],
+        title,
+      };
+
+      if (navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+        return;
+      }
+
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = downloadName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      setShareMessage(
+        "Sharing images is not supported here, so the image was downloaded.",
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+
+      setShareMessage("Could not share this image. Please try downloading it.");
+    } finally {
+      setIsSharing(false);
+    }
   }
 
   return (
@@ -253,6 +306,19 @@ export default function DriveGallery({
             </button>
 
             {!shouldHideDownloadButton ? (
+              <button
+                type="button"
+                aria-label="Share image"
+                title="Share image"
+                onClick={shareCurrentImage}
+                disabled={isSharing}
+                className="grid h-11 w-11 place-items-center rounded-full bg-white/12 text-white backdrop-blur hover:bg-white/18 disabled:cursor-wait disabled:opacity-60"
+              >
+                ↪
+              </button>
+            ) : null}
+
+            {!shouldHideDownloadButton ? (
               <a
                 href={`https://drive.google.com/uc?export=download&id=${currentImage.id}`}
                 download={downloadName}
@@ -276,6 +342,12 @@ export default function DriveGallery({
               </a>
             ) : null}
           </div>
+
+          {shareMessage ? (
+            <p className="absolute left-1/2 top-4 z-30 max-w-[calc(100vw-7rem)] -translate-x-1/2 rounded-full bg-white/14 px-4 py-2 text-center text-xs font-medium text-white backdrop-blur md:top-6">
+              {shareMessage}
+            </p>
+          ) : null}
 
           <div className="flex h-full w-full flex-col md:px-6 md:pt-2">
             <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden">
