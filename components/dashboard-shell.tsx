@@ -20,6 +20,17 @@ export default function DashboardShell({ children }: DashboardShellProps) {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   useEffect(() => {
+    const scrollContainer = document.querySelector<HTMLElement>(
+      "[data-dashboard-scroll-container='true']",
+    );
+
+    scrollContainer?.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, behavior: "instant" });
+    document.documentElement.scrollTo({ top: 0, behavior: "instant" });
+    document.body.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname]);
+
+  useEffect(() => {
     const desktopContainer = document.querySelector<HTMLElement>(
       "[data-dashboard-scroll-container='true']"
     );

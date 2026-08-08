@@ -77,6 +77,82 @@ function GalleryImage({
   );
 }
 
+function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="m8.6 10.7 6.8-3.4" />
+      <path d="m8.6 13.3 6.8 3.4" />
+    </svg>
+  );
+}
+
+function loadBlobImage(blob: Blob) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const image = new Image();
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Image could not be prepared for sharing."));
+    };
+    image.src = objectUrl;
+  });
+}
+
+async function rotateImageBlob(blob: Blob, rotation: number) {
+  const normalizedRotation = ((rotation % 360) + 360) % 360;
+
+  if (normalizedRotation === 0) {
+    return blob;
+  }
+
+  const image = await loadBlobImage(blob);
+  const isSidewaysRotation = normalizedRotation % 180 !== 0;
+  const canvas = document.createElement("canvas");
+  canvas.width = isSidewaysRotation ? image.naturalHeight : image.naturalWidth;
+  canvas.height = isSidewaysRotation ? image.naturalWidth : image.naturalHeight;
+
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    throw new Error("Image could not be rotated for sharing.");
+  }
+
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate((normalizedRotation * Math.PI) / 180);
+  context.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
+
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (rotatedBlob) => {
+        if (rotatedBlob) {
+          resolve(rotatedBlob);
+        } else {
+          reject(new Error("Image could not be rotated for sharing."));
+        }
+      },
+      "image/jpeg",
+      0.95,
+    );
+  });
+}
+
 type DriveGalleryProps = {
   images: DriveImage[];
   title: string;
@@ -209,8 +285,9 @@ export default function DriveGallery({
       }
 
       const blob = await response.blob();
-      const imageFile = new File([blob], downloadName, {
-        type: blob.type || "image/jpeg",
+      const shareBlob = await rotateImageBlob(blob, rotation);
+      const imageFile = new File([shareBlob], downloadName, {
+        type: shareBlob.type || "image/jpeg",
       });
       const shareData = {
         files: [imageFile],
@@ -222,7 +299,7 @@ export default function DriveGallery({
         return;
       }
 
-      const objectUrl = URL.createObjectURL(blob);
+      const objectUrl = URL.createObjectURL(shareBlob);
       const link = document.createElement("a");
       link.href = objectUrl;
       link.download = downloadName;
@@ -314,7 +391,7 @@ export default function DriveGallery({
                 disabled={isSharing}
                 className="grid h-11 w-11 place-items-center rounded-full bg-white/12 text-white backdrop-blur hover:bg-white/18 disabled:cursor-wait disabled:opacity-60"
               >
-                ↪
+                <ShareIcon className="h-5 w-5" />
               </button>
             ) : null}
 
