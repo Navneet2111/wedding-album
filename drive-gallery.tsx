@@ -261,6 +261,7 @@ export default function DriveGallery({
       current === null ? 0 : (current - 1 + images.length) % images.length,
     );
   }
+  
 
   function showNext() {
     setRotation(0);
