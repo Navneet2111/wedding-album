@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { albumItems } from "@/app/dashboard/album/album-data";
+import LikedImagesCard from "@/components/liked-images-card";
 
 export default function AlbumGrid() {
   const router = useRouter();
@@ -129,6 +130,7 @@ export default function AlbumGrid() {
           </button>
         );
       })}
+      <LikedImagesCard />
     </div>
   );
 }

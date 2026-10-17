@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import FaceSearchPanelServer from "@/components/face-search-panel-server";
+import LikedImagesCard from "@/components/liked-images-card";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -61,6 +62,7 @@ export default function DashboardPage() {
           >
             Open Album
           </Link>
+          <LikedImagesCard compact />
           <Link
             href="/dashboard/video"
             className="rounded-full border border-rose-800/50 px-4 md:px-5 py-3 text-sm font-bold text-rose-900 transition hover:border-rose-800/35 hover:bg-white/60"

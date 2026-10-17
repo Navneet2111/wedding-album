@@ -98,7 +98,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
                       Album
                     </p>
                     <h1 className="mt-2 font-serif text-2xl font-bold text-rose-950 lg:text-3xl">
-                      {detailItem?.title ?? "Album"}
+                      {slug === "liked" ? "Loved Images" : detailItem?.title ?? "Album"}
                     </h1>
                   </div>
                 ) : (
@@ -122,7 +122,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h1 className=" font-serif text-2xl font-bold text-rose-950 capitalize">
-                    {detailItem?.slug ?? "Album"}
+                    {slug === "liked" ? "Loved Images" : detailItem?.slug ?? "Album"}
                   </h1>
                 </div>
                 <DashboardActionButton />
@@ -149,6 +149,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
           type="button"
           onClick={handleScrollToTop}
           aria-label="Scroll to top"
+          data-scroll-to-top="true"
           className="fixed bottom-0 right-0 z-50 grid h-14 w-14 cursor-pointer place-items-center rounded-tl-[18px] bg-rose-900 text-rose-50 shadow-[0_12px_26px_rgba(70,20,35,0.28)] transition hover:bg-rose-950"
         >
           <ArrowUpIcon className="h-6 w-6" />
