@@ -86,10 +86,18 @@ export default function LikedImagesGallery() {
 
   const undoable = pendingRemovals.filter(item => !liked.some(photo => photo.id === item.image.id));
 
+  const downloadActions = (liked.length > 0 || downloading) ? <>
+    <button type="button" onClick={downloadAll} disabled={downloading} className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-rose-800/20 bg-white/80 px-3 py-2 text-xs font-semibold text-rose-900 transition hover:bg-rose-50 disabled:cursor-wait disabled:opacity-60 sm:flex-none sm:px-4 sm:text-sm">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5" /></svg>
+      {downloading ? `Preparing ${progress.completed}/${progress.total}...` : <>Download all<span className="hidden sm:inline"> ({liked.length})</span></>}
+    </button>
+    {downloading && <button type="button" className="px-1 py-2 text-xs font-semibold text-rose-900 underline underline-offset-4" onClick={() => downloadController.current?.abort()}>Cancel</button>}
+  </> : null;
+
   return (
-    <section className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-        <div className="relative min-h-72 overflow-hidden rounded-xl border border-rose-900/10 bg-rose-100 shadow-[0_18px_45px_rgba(102,35,49,0.14)] lg:min-h-88">
+    <section className="loved-images-gallery space-y-4 lg:space-y-6">
+      <div className="hidden gap-6 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+        <div className="relative hidden min-h-88 overflow-hidden rounded-xl border border-rose-900/10 bg-rose-100 shadow-[0_18px_45px_rgba(102,35,49,0.14)] lg:block">
           <Image src={collection[0]?.thumbSources[0] ?? "/wedding.JPG"} alt="A favourite moment from your wedding memories" fill unoptimized sizes="(max-width: 1024px) 90vw, 55vw" className="object-cover object-center" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(55,18,28,0.04),rgba(55,18,28,0.78))]" />
           <div className="absolute inset-x-0 bottom-0 p-6 text-white">
@@ -98,7 +106,8 @@ export default function LikedImagesGallery() {
             <p className="mt-3 max-w-xl text-sm leading-6 text-rose-50/90">The smiles, the celebrations, the little moments you never want to forget.</p>
           </div>
         </div>
-        <div className="rounded-xl border border-rose-900/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.92),rgba(248,231,220,0.82))] p-6 shadow-[0_18px_45px_rgba(102,35,49,0.12)]">
+        <div className="lg:rounded-xl lg:border lg:border-rose-900/10 lg:bg-[linear-gradient(145deg,rgba(255,255,255,0.92),rgba(248,231,220,0.82))] lg:p-6 lg:shadow-[0_18px_45px_rgba(102,35,49,0.12)]">
+          <div className="hidden lg:block">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-rose-800/75">Your personal collection</p>
           <h3 className="mt-4 font-serif text-3xl font-bold text-rose-950">Your favourites, all together.</h3>
           <p className="mt-4 text-sm leading-7 text-rose-900/75">Every photo here is a moment you love. Explore them by ceremony, relive them in one slideshow, or take the whole collection with you.</p>
@@ -106,14 +115,12 @@ export default function LikedImagesGallery() {
             <span className="inline-flex items-center gap-2 rounded-full border border-rose-900/10 bg-white/70 px-4 py-2"><HeartIcon className="h-4 w-4" filled />{liked.length} loved {liked.length === 1 ? "photo" : "photos"}</span>
             <span className="rounded-full border border-rose-900/10 bg-white/70 px-4 py-2">{ceremonyCount} {ceremonyCount === 1 ? "ceremony" : "ceremonies"}</span>
           </div>
-          {(liked.length > 0 || downloading) && <div className="mt-6 flex items-center gap-3">
-            <button type="button" onClick={downloadAll} disabled={downloading} className="rounded-full bg-rose-800 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-900 disabled:cursor-wait disabled:opacity-60">{downloading ? `Preparing ${progress.completed}/${progress.total}...` : `Download all (${liked.length})`}</button>
-            {downloading && <button type="button" className="text-sm font-semibold text-rose-900 underline underline-offset-4" onClick={() => downloadController.current?.abort()}>Cancel</button>}
-          </div>}
+          </div>
+
         </div>
       </div>
       {downloadMessage && <p role="status" className="rounded-xl border border-rose-900/10 bg-white/60 p-3 text-sm text-rose-900">{downloadMessage}</p>}
-      {images.length ? <DriveGallery images={images} title="Loved Images" onViewerOpenChange={onViewerOpenChange} onImageUnliked={onImageUnliked} getGroupLabel={image => getLikedImageGroup("title" in image && typeof image.title === "string" ? image.title : "Other memories")} /> : <div className="rounded-3xl border border-dashed border-rose-300 bg-white/60 p-8 text-center text-rose-900"><p>No loved images yet.</p><Link href="/dashboard/album" className="mt-4 inline-block font-semibold underline underline-offset-4">Find moments to love</Link></div>}
+      {images.length ? <DriveGallery images={images} title="Loved Images" headerActions={downloadActions} onViewerOpenChange={onViewerOpenChange} onImageUnliked={onImageUnliked} getGroupLabel={image => getLikedImageGroup("title" in image && typeof image.title === "string" ? image.title : "Other memories")} /> : <div className="rounded-3xl border border-dashed border-rose-300 bg-white/60 p-8 text-center text-rose-900"><p>No loved images yet.</p><Link href="/dashboard/album" className="mt-4 inline-block font-semibold underline underline-offset-4">Find moments to love</Link></div>}
       {(undoable.length > 0 || undoError) && <div className="fixed inset-x-4 bottom-5 z-[150] max-h-[40dvh] space-y-2 overflow-y-auto sm:left-auto sm:right-6 sm:w-96">
         {undoable.map(removal => <div key={`${removal.image.id}-${removal.expiresAt}`} role="status" className="flex items-center gap-3 rounded-2xl border border-rose-200 bg-white p-4 text-rose-950 shadow-[0_12px_40px_rgba(70,20,35,0.25)]">
           <HeartIcon className="h-5 w-5 shrink-0 text-rose-800" />

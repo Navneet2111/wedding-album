@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import CloseIcon from "@/components/icons/close-icon";
@@ -213,6 +213,7 @@ type DriveGalleryProps = {
   onViewerOpenChange?: (open: boolean) => void;
   getGroupLabel?: (image: DriveImage) => string;
   onImageUnliked?: (image: DriveImage) => void;
+  headerActions?: ReactNode;
 };
 
 const SLIDESHOW_INTERVAL_MS = 7000;
@@ -226,6 +227,7 @@ export default function DriveGallery({
   onViewerOpenChange,
   getGroupLabel,
   onImageUnliked,
+  headerActions,
 }: DriveGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const likedImages = useLikedImages();
@@ -266,7 +268,7 @@ export default function DriveGallery({
     const liked = likedImages.some(item => item.id === image.id);
     const isTile = tileIndex !== undefined;
     const label = `${liked ? "Unlike" : "Like"} ${isTile ? `${title} photo ${tileIndex + 1}` : "image"}`;
-    return <button type="button" aria-label={label} aria-pressed={liked} title={liked ? "Unlike image" : "Like image"} onClick={() => toggleLike(image)} className={`absolute grid place-items-center rounded-full text-white backdrop-blur transition hover:scale-110 ${isTile ? "bottom-2 right-2 z-20 h-8 w-8" : "bottom-40 right-3 z-40 h-11 w-11 md:right-6"} ${liked ? "bg-rose-800 hover:bg-rose-900" : isTile ? "bg-black/40 hover:bg-black/60" : "bg-white/15 hover:bg-white/25"}`}><HeartIcon className={isTile ? "h-4 w-4" : "h-6 w-6"} filled={liked} /></button>;
+    return <button type="button" aria-label={label} aria-pressed={liked} title={liked ? "Unlike image" : "Like image"} onClick={() => toggleLike(image)} className={`absolute grid place-items-center rounded-full text-white backdrop-blur transition hover:scale-110 ${isTile ? "gallery-tile-heart bottom-2 right-2 z-20 h-8 w-8" : "bottom-40 right-3 z-40 h-11 w-11 md:right-6"} ${liked ? "bg-rose-800 hover:bg-rose-900" : isTile ? "bg-black/40 hover:bg-black/60" : "bg-white/15 hover:bg-white/25"}`}><HeartIcon className={isTile ? "h-4 w-4" : "h-6 w-6"} filled={liked} /></button>;
   }
 
   // Keep the currently displayed photo until the requested photo is fully decoded.
@@ -551,18 +553,21 @@ export default function DriveGallery({
   return (
     <>
       {/* Gallery Header with Slideshow Button */}
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-rose-800/60">
-          {images.length} photos
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p className={`text-[10px] font-semibold uppercase tracking-[0.2em] text-rose-800/60 sm:text-xs ${headerActions ? "w-full sm:w-auto" : ""}`}>
+          {images.length} {images.length === 1 ? "photo" : "photos"}
         </p>
+        <div className={`flex flex-wrap items-center gap-2 ${headerActions ? "w-full sm:w-auto" : ""}`}>
+        {headerActions}
         <button
           type="button"
           onClick={() => startSlideshow()}
-          className="flex items-center gap-2 rounded-full bg-rose-800 px-4 py-2 text-sm font-semibold text-rose-50 shadow-[0_4px_16px_rgba(102,35,49,0.25)] transition hover:bg-rose-900 hover:shadow-[0_6px_20px_rgba(102,35,49,0.35)] active:scale-95"
+          className={`inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-rose-800 px-3 py-2 text-xs font-semibold text-rose-50 transition hover:bg-rose-900 active:scale-95 sm:px-4 sm:text-sm ${headerActions ? "flex-1 sm:flex-none" : ""}`}
         >
           <SlideshowIcon className="h-4 w-4" />
           Slideshow
         </button>
+        </div>
       </div>
 
       {/* Grid Gallery */}

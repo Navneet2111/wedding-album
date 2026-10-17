@@ -116,10 +116,10 @@ export default function DashboardShell({ children }: DashboardShellProps) {
       </div>
 
       <div className="relative px-4 py-6 md:hidden">
-        <div className="rounded-md border border-rose-900/15 bg-[linear-gradient(145deg,rgba(255,251,247,0.96),rgba(250,232,220,0.92))] p-5 shadow-[0_24px_60px_rgba(102,35,49,0.18)]">
-          <div className="mb-6 flex flex-col gap-4 border-b border-rose-900/10 pb-5">
+        <div className="rounded-xl border border-rose-900/15 bg-[linear-gradient(145deg,rgba(255,251,247,0.96),rgba(250,232,220,0.92))] p-4 shadow-[0_24px_60px_rgba(102,35,49,0.18)]">
+          <div className="mb-4 flex flex-col gap-4 border-b border-rose-900/10 pb-4">
             {isAlbumDetail ? (
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center justify-between gap-3">
                 <div>
                   <h1 className=" font-serif text-2xl font-bold text-rose-950 capitalize">
                     {slug === "liked" ? "Loved Images" : detailItem?.slug ?? "Album"}
