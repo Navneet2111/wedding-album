@@ -62,13 +62,13 @@ export default function DashboardPage() {
           >
             Open Album
           </Link>
-          <LikedImagesCard compact />
           <Link
             href="/dashboard/video"
             className="rounded-full border border-rose-800/50 px-4 md:px-5 py-3 text-sm font-bold text-rose-900 transition hover:border-rose-800/35 hover:bg-white/60"
           >
             Open Video
           </Link>
+          <LikedImagesCard compact />
         </div>
       </div>
       <Suspense fallback={<FaceSearchPanelFallback />}>

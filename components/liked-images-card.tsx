@@ -8,7 +8,7 @@ import { useLikedImages } from "@/lib/liked-images";
 export default function LikedImagesCard({ compact = false }: { compact?: boolean }) {
   const liked = useLikedImages();
   if (!liked.length) return null;
-  if (compact) return <Link href="/dashboard/album/liked" className="inline-flex items-center gap-2 rounded-full border border-rose-800/50 px-4 py-3 text-sm font-bold text-rose-900 transition hover:bg-white/60"><HeartIcon className="h-4 w-4" filled />Loved Images ({liked.length})</Link>;
+  if (compact) return <Link href="/dashboard/album/liked" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-rose-800/50 px-4 py-3 text-sm font-bold text-rose-900 transition hover:bg-white/60 md:w-auto"><HeartIcon className="h-4 w-4" filled />Loved Images ({liked.length})</Link>;
   return (
     <Link href="/dashboard/album/liked" className="group relative rounded-[28px] bg-[linear-gradient(140deg,rgba(255,255,255,0.94),rgba(251,230,219,0.82))] p-5 text-left shadow-[0_10px_24px_rgba(102,35,49,0.1)] transition hover:-translate-y-1">
       <div className="relative mb-4 h-44 overflow-hidden rounded-[18px] md:h-60 lg:h-52">
