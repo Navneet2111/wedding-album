@@ -1,1 +1,0 @@
-import LikedImagesGallery from "@/components/liked-images-gallery"; export default function Check(){return <main className="p-4"><LikedImagesGallery /></main>}

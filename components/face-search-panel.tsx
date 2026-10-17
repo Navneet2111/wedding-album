@@ -1,6 +1,8 @@
 "use client";
 
 import DriveGallery from "@/components/drive-gallery";
+import PhotoDownloadFeedback from "@/components/photo-download-feedback";
+import { usePhotoDownload } from "@/hooks/use-photo-download";
 import FaceIndexBuilder from "@/components/face-index-builder";
 import type {
   FaceSearchDescriptorEntry,
@@ -312,16 +314,6 @@ function readFileAsDataUrl(file: File) {
   });
 }
 
-function getDownloadName(match: SearchMatch, index: number) {
-  const albumName = match.albumTitle
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "match";
-
-  return `${albumName}-${index + 1}.jpg`;
-}
-
 export default function FaceSearchPanel({
   images,
   descriptorEntries = [],
@@ -333,7 +325,7 @@ export default function FaceSearchPanel({
     "",
   );
   const [isSearching, setIsSearching] = useState(false);
-  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const downloads = usePhotoDownload();
   const [isModelReady, setIsModelReady] = useState(false);
   const [processedCount, setProcessedCount] = useState(0);
   const [searchMode, setSearchMode] = useState<SearchModeId>("balanced");
@@ -446,7 +438,6 @@ export default function FaceSearchPanel({
     setStatus("");
     setProcessedCount(0);
     setIsSearching(false);
-    setIsDownloadingAll(false);
     setSearchMode("balanced");
 
     if (fileInputRef.current) {
@@ -460,28 +451,8 @@ export default function FaceSearchPanel({
     descriptorCache.clear();
   }
 
-  async function handleDownloadAll() {
-    if (!matches.length) {
-      return;
-    }
-
-    setIsDownloadingAll(true);
-
-    try {
-      for (const [index, match] of matches.entries()) {
-        const link = document.createElement("a");
-        link.href = `https://drive.google.com/uc?export=download&id=${match.id}`;
-        link.download = getDownloadName(match, index);
-        link.rel = "noopener";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        await new Promise((resolve) => window.setTimeout(resolve, 220));
-      }
-    } finally {
-      setIsDownloadingAll(false);
-    }
+  function handleDownloadAll() {
+    void downloads.start(matches.map(match => ({ ...buildDriveImage(match.id), title: match.albumTitle })));
   }
 
   async function handleSearch() {
@@ -725,11 +696,12 @@ export default function FaceSearchPanel({
               {matches.length ? (
                 <button
                   type="button"
+                  ref={downloads.triggerRef}
                   onClick={handleDownloadAll}
-                  disabled={isDownloadingAll}
+                  disabled={downloads.downloading}
                   className="mt-3 rounded-full border border-rose-800/20 px-3 py-3 text-sm font-bold text-rose-900 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isDownloadingAll ? "Downloading..." : "Download All"}
+                  Download All
                 </button>
               ) : null}
               {isSearching && matches.length ? (
@@ -742,6 +714,7 @@ export default function FaceSearchPanel({
         </div>
       </div>
 
+      <PhotoDownloadFeedback download={downloads} label="Face Search Matches" />
       <div className="mt-8">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-rose-800/75">

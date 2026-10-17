@@ -2,11 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DriveGallery from "@/components/drive-gallery";
-import DownloadProgressDialog, {
-  type DownloadOutcome,
-} from "@/components/download-progress-dialog";
+import PhotoDownloadFeedback from "@/components/photo-download-feedback";
+import { usePhotoDownload } from "@/hooks/use-photo-download";
 import HeartIcon from "@/components/icons/heart-icon";
 import type { DriveImage } from "@/lib/google-drive";
 import {
@@ -15,11 +14,6 @@ import {
   useLikedImages,
 } from "@/lib/liked-images";
 import { getLikedImageGroup, groupLikedImages } from "@/lib/liked-image-groups";
-import {
-  downloadLovedImages,
-  LOVED_IMAGES_FOLDER,
-  type IndividualPhotoDownload,
-} from "@/lib/download-liked-images";
 
 type UndoRemoval = { image: LikedImage; index: number; expiresAt: number };
 const UNDO_DURATION_MS = 5000;
@@ -42,17 +36,8 @@ export default function LikedImagesGallery() {
   const ceremonyCount = groupLikedImages(liked).length;
   const [pendingRemovals, setPendingRemovals] = useState<UndoRemoval[]>([]);
   const [undoError, setUndoError] = useState("");
-  const [downloading, setDownloading] = useState(false);
-  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
-  const [downloadOutcome, setDownloadOutcome] = useState<DownloadOutcome>(null);
-  const [progress, setProgress] = useState({ completed: 0, total: 0 });
-  const [downloadMessage, setDownloadMessage] = useState("");
-  const [individualDownloads, setIndividualDownloads] = useState<
-    IndividualPhotoDownload[]
-  >([]);
-  const downloadController = useRef<AbortController | null>(null);
-  const downloadButton = useRef<HTMLButtonElement>(null);
-  useEffect(() => () => downloadController.current?.abort(), []);
+  const download = usePhotoDownload();
+  const { downloading, triggerRef: downloadButton } = download;
 
   useEffect(() => {
     if (!pendingRemovals.length) return;
@@ -93,7 +78,7 @@ export default function LikedImagesGallery() {
     [liked, collection],
   );
 
-  function undoRemoval(removal: UndoRemoval) {
+  const undoRemoval = useCallback((removal: UndoRemoval) => {
     if (Date.now() >= removal.expiresAt) return;
     if (!restoreLikedImage(removal.image, removal.index)) {
       setUndoError(
@@ -103,57 +88,10 @@ export default function LikedImagesGallery() {
     }
     setPendingRemovals((current) => current.filter((item) => item !== removal));
     setUndoError("");
-  }
+  }, []);
 
-  async function downloadAll() {
-    if (downloadController.current || !liked.length) return;
-    const controller = new AbortController();
-    downloadController.current = controller;
-    setDownloading(true);
-    setDownloadDialogOpen(true);
-    setDownloadOutcome(null);
-    setDownloadMessage("");
-    setIndividualDownloads([]);
-    setProgress({ completed: 0, total: liked.length });
-    try {
-      const result = await downloadLovedImages(
-        [...liked],
-        controller.signal,
-        (completed, total) => setProgress({ completed, total }),
-      );
-      setIndividualDownloads(result.individualDownloads);
-      setDownloadOutcome(result.failed.length ? "partial" : "success");
-      const summary =
-        result.mode === "zip"
-          ? `Downloaded ${result.downloaded} ${result.downloaded === 1 ? "photo" : "photos"} in ${LOVED_IMAGES_FOLDER}.zip. All photos are together, without ceremony subfolders.`
-          : `Requested ${result.downloaded} individual photo downloads. Allow multiple downloads if your browser asks. Individual download links are available on this page if needed.`;
-      setDownloadMessage(
-        summary +
-          (result.failed.length
-            ? ` ${result.failed.length} photos could not be downloaded; please try again.`
-            : ""),
-      );
-    } catch (error) {
-      const cancelled =
-        controller.signal.aborted ||
-        (error instanceof DOMException && error.name === "AbortError");
-      setDownloadOutcome(cancelled ? "cancelled" : "error");
-      setDownloadMessage(
-        cancelled
-          ? "Download cancelled. Photos already downloaded will stay on your device."
-          : error instanceof Error
-            ? error.message
-            : "Could not download your photos. Please try again.",
-      );
-    } finally {
-      downloadController.current = null;
-      setDownloading(false);
-    }
-  }
-
-  function dismissDownloadDialog() {
-    setDownloadDialogOpen(false);
-    window.requestAnimationFrame(() => downloadButton.current?.focus({ preventScroll: true }));
+  function downloadAll() {
+    void download.start(liked);
   }
 
   const undoable = pendingRemovals.filter(
@@ -235,37 +173,7 @@ export default function LikedImagesGallery() {
           </div>
         </div>
       </div>
-      {downloadMessage && !downloadDialogOpen && (
-        <p
-          role="status"
-          className="rounded-xl border border-rose-900/10 bg-white/60 p-3 text-sm text-rose-900"
-        >
-          {downloadMessage}
-        </p>
-      )}
-      {individualDownloads.length > 0 && (
-        <details className="rounded-xl border border-rose-900/10 bg-white/60 p-3 text-sm text-rose-900">
-          <summary className="cursor-pointer font-semibold">
-            Missing a photo? Download individually
-          </summary>
-          <p className="mt-2 text-xs leading-6 text-rose-900/70">
-            Your browser decides where photos are saved. These links let you
-            save each photo if automatic downloads were blocked.
-          </p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {individualDownloads.map((photo) => (
-              <a
-                key={photo.id}
-                href={photo.url}
-                download={photo.name}
-                className="truncate rounded-lg border border-rose-900/10 bg-white px-3 py-2 underline underline-offset-4"
-              >
-                {photo.name}
-              </a>
-            ))}
-          </div>
-        </details>
-      )}
+      <PhotoDownloadFeedback download={download} label="Loved Images" />
       {images.length ? (
         <DriveGallery
           images={images}
@@ -328,17 +236,7 @@ export default function LikedImagesGallery() {
           )}
         </div>
       )}
-      <DownloadProgressDialog
-        open={downloadDialogOpen}
-        preparing={downloading}
-        completed={progress.completed}
-        total={progress.total}
-        message={downloadMessage}
-        outcome={downloadOutcome}
-        onCancel={() => downloadController.current?.abort()}
-        onDismiss={dismissDownloadDialog}
-        onRetry={liked.length ? downloadAll : undefined}
-      />
+
     </section>
   );
 }

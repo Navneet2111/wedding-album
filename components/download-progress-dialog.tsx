@@ -18,7 +18,7 @@ type DownloadProgressDialogProps = {
   outcome: DownloadOutcome;
   onCancel: () => void;
   onDismiss: () => void;
-  onRetry?: () => void;
+  collectionLabel?: string;
 };
 
 export default function DownloadProgressDialog({
@@ -30,7 +30,7 @@ export default function DownloadProgressDialog({
   outcome,
   onCancel,
   onDismiss,
-  onRetry,
+  collectionLabel = "Loved Images",
 }: DownloadProgressDialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const headingId = useId();
@@ -92,7 +92,7 @@ export default function DownloadProgressDialog({
         </svg>
       </div>
       <p className="text-center text-[10px] font-semibold uppercase tracking-[0.24em] text-rose-800/65">
-        Loved Images
+        {collectionLabel}
       </p>
       <h2
         id={headingId}
